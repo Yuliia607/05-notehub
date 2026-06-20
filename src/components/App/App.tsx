@@ -1,5 +1,8 @@
 import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import {
+  useQuery,
+  keepPreviousData,
+} from '@tanstack/react-query';
 
 import css from './App.module.css';
 import NoteList from '../NoteList/NoteList';
@@ -19,10 +22,14 @@ const App = () => {
 const closeModal = () => {
   setIsModalOpen(false);
 };
-  const handlePageChange = (selectedPage: number) => {
-  setPage(selectedPage);
-  
+  const handlePageChange = ({
+  selected,
+}: {
+  selected: number;
+}) => {
+  setPage(selected + 1);
 };
+
   const [search, setSearch] = useState('');
   const handleSearch = useDebouncedCallback(
   (value: string) => {
@@ -33,10 +40,11 @@ const closeModal = () => {
 );
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const { data, isLoading, error } = useQuery({
-    queryKey: ['notes', page, search],
-    queryFn: () => fetchNotes({ page, search }),
-  });
+ const { data, isLoading, error } = useQuery({
+  queryKey: ['notes', page, search],
+  queryFn: () => fetchNotes({ page, search }),
+  placeholderData: keepPreviousData,
+});
   if (isLoading) {
   return <p>Loading...</p>;
 }
@@ -45,18 +53,16 @@ if (error) {
   return <p>Something went wrong...</p>;
 }
 
-
-
-
   return (
     <div className={css.app}>
       <header className={css.toolbar}>
         {<SearchBox onSearch={handleSearch} />}
         {data && data.totalPages > 1 && (
   <Pagination
-    pageCount={data.totalPages}
-    onPageChange={handlePageChange}
-  />
+  pageCount={data.totalPages}
+  currentPage={page}
+  onPageChange={handlePageChange}
+/>
 )}
         {<button
   className={css.button}

@@ -40,10 +40,6 @@ export const fetchNotes = async ({
 
   return response.data;
 };
-interface DeleteNoteResponse {
-  id: string;
-}
-
 
 export const createNote = async (
   noteData: CreateNoteData
@@ -55,10 +51,11 @@ export const createNote = async (
 
   return response.data;
 };
+
 export const deleteNote = async (
   id: string
-): Promise<DeleteNoteResponse> => {
-  const response = await api.delete<DeleteNoteResponse>(
+): Promise<Note> => {
+  const response = await api.delete<Note>(
     `/notes/${id}`
   );
 
